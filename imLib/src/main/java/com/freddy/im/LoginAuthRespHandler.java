@@ -30,6 +30,7 @@ public class LoginAuthRespHandler extends ChannelInboundHandlerAdapter {
         this.imsClient = imsClient;
     }
 
+    // 读取到数据的时候
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         MessageProtobuf.Msg handshakeRespMsg = (MessageProtobuf.Msg) msg;
@@ -74,7 +75,7 @@ public class LoginAuthRespHandler extends ChannelInboundHandlerAdapter {
                 }
             }
         } else {
-            // 消息透传
+            // 消息 继续 透传
             ctx.fireChannelRead(msg);
         }
     }

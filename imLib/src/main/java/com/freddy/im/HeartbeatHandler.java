@@ -26,6 +26,7 @@ public class HeartbeatHandler extends ChannelInboundHandlerAdapter {
         this.imsClient = imsClient;
     }
 
+    // 主要负责心跳 数据
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         super.userEventTriggered(ctx, evt);

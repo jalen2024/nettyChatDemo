@@ -39,6 +39,7 @@ public class MsgTimeoutTimer extends Timer {
         @Override
         public void run() {
             if (imsClient.isClosed()) {
+                // 从消息发送超时管理器移除该消息
                 if (imsClient.getMsgTimeoutTimerManager() != null) {
                     imsClient.getMsgTimeoutTimerManager().remove(msg.getHead().getMsgId());
                 }

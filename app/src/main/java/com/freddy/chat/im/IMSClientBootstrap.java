@@ -42,6 +42,13 @@ public class IMSClientBootstrap {
         bootstrap.init(userId, token, hosts, 0);
     }
 
+    /**
+     *
+     * @param userId
+     * @param token
+     * @param hosts
+     * @param appStatus 0 在后台 1 在前台
+     */
     public synchronized void init(String userId, String token, String hosts, int appStatus) {
         if (!isActive()) {
             Vector<String> serverUrlList = convertHosts(hosts);

@@ -39,7 +39,7 @@ import io.netty.handler.codec.protobuf.ProtobufEncoder;
 public class NettyServerDemo {
 
     public static void main(String[] args) {
-
+        // 2个线程池 前者心跳 后者业务
         //boss线程监听端口，worker线程负责数据读写
         EventLoopGroup boss = new NioEventLoopGroup();
         EventLoopGroup worker = new NioEventLoopGroup();
@@ -53,7 +53,7 @@ public class NettyServerDemo {
             //设置socket工厂
             bootstrap.channel(NioServerSocketChannel.class);
 
-            //设置管道工厂
+            //设置管道工厂  输入消息和输出消息的 透传. 输入正序  输出逆序
             bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel socketChannel) throws Exception {

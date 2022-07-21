@@ -44,11 +44,13 @@ public class TCPChannelInitializerHandler extends ChannelInitializer<Channel> {
         pipeline.addLast(new ProtobufEncoder());
         pipeline.addLast(new ProtobufDecoder(MessageProtobuf.Msg.getDefaultInstance()));
 
-        // 握手认证消息响应处理handler
+        // 握手认证消息响应处理handler   in
         pipeline.addLast(LoginAuthRespHandler.class.getSimpleName(), new LoginAuthRespHandler(imsClient));
-        // 心跳消息响应处理handler
+        // 心跳消息响应处理handler    in
         pipeline.addLast(HeartbeatRespHandler.class.getSimpleName(), new HeartbeatRespHandler(imsClient));
-        // 接收消息处理handler
+        // 接收消息处理handler    in
         pipeline.addLast(TCPReadHandler.class.getSimpleName(), new TCPReadHandler(imsClient));
+
+        //TODO 需要新增 写的吧
     }
 }

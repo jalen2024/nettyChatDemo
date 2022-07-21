@@ -41,14 +41,14 @@ public class NettyTcpClient implements IMSClientInterface {
     private Bootstrap bootstrap;
     private Channel channel;
 
-    private boolean isClosed = false;// 标识ims是否已关闭
+    private volatile boolean isClosed = false;// 标识ims是否已关闭
     private Vector<String> serverUrlList;// ims服务器地址组
     private OnEventListener mOnEventListener;// 与应用层交互的listener
     private IMSConnectStatusCallback mIMSConnectStatusCallback;// ims连接状态回调监听器
     private MsgDispatcher msgDispatcher;// 消息转发器
     private ExecutorServiceFactory loopGroup;// 线程池工厂
 
-    private boolean isReconnecting = false;// 是否正在进行重连
+    private volatile boolean isReconnecting = false;// 是否正在进行重连
     private int connectStatus = IMSConfig.CONNECT_STATE_FAILURE;// ims连接状态，初始化为连接失败
     // 重连间隔时长
     private int reconnectInterval = IMSConfig.DEFAULT_RECONNECT_BASE_DELAY_TIME;
@@ -127,7 +127,7 @@ public class NettyTcpClient implements IMSClientInterface {
      * @param isFirst 是否首次连接
      */
     @Override
-    public void resetConnect(boolean isFirst) {
+    public synchronized void resetConnect(boolean isFirst) {
         if (!isFirst) {
             try {
                 Thread.sleep(IMSConfig.DEFAULT_RECONNECT_INTERVAL);
@@ -135,7 +135,7 @@ public class NettyTcpClient implements IMSClientInterface {
                 e.printStackTrace();
             }
         }
-
+        // 双重校验
         // 只有第一个调用者才能赋值并调用重连
         if (!isClosed && !isReconnecting) {
             synchronized (this) {
@@ -236,8 +236,8 @@ public class NettyTcpClient implements IMSClientInterface {
             return;
         }
 
-        if(!StringUtil.isNullOrEmpty(msg.getHead().getMsgId())) {
-            if(isJoinTimeoutManager) {
+        if (!StringUtil.isNullOrEmpty(msg.getHead().getMsgId())) {
+            if (isJoinTimeoutManager) {
                 msgTimeoutTimerManager.add(msg);
             }
         }
@@ -529,6 +529,7 @@ public class NettyTcpClient implements IMSClientInterface {
             if (channel.pipeline().get(HeartbeatHandler.class.getSimpleName()) != null) {
                 channel.pipeline().remove(HeartbeatHandler.class.getSimpleName());
             }
+            // InboundHandler顺序执行，OutboundHandler逆序执行
             if (channel.pipeline().get(TCPReadHandler.class.getSimpleName()) != null) {
                 channel.pipeline().addBefore(TCPReadHandler.class.getSimpleName(), HeartbeatHandler.class.getSimpleName(),
                         new HeartbeatHandler(this));
@@ -569,12 +570,13 @@ public class NettyTcpClient implements IMSClientInterface {
                     try {
                         channel.close();
                     } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
                     try {
                         channel.eventLoop().shutdownGracefully();
                     } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
-
                     channel = null;
                 }
             }
@@ -600,7 +602,7 @@ public class NettyTcpClient implements IMSClientInterface {
     /**
      * 真正连接服务器的地方
      */
-    private void toServer() {
+    private void toRealServer() {
         try {
             channel = bootstrap.connect(currentHost, currentPort).sync().channel();
         } catch (Exception e) {
@@ -638,7 +640,7 @@ public class NettyTcpClient implements IMSClientInterface {
                 loopGroup.destroyWorkLoopGroup();
 
                 while (!isClosed) {
-                    if(!isNetworkAvailable()) {
+                    if (!isNetworkAvailable()) {
                         try {
                             Thread.sleep(2000);
                         } catch (InterruptedException e) {
@@ -729,7 +731,7 @@ public class NettyTcpClient implements IMSClientInterface {
                     try {
                         currentHost = address[0];// 获取host
                         currentPort = Integer.parseInt(address[1]);// 获取port
-                        toServer();// 连接服务器
+                        toRealServer();// 连接服务器
 
                         // channel不为空，即认为连接已成功
                         if (channel != null) {

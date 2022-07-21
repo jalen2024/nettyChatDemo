@@ -31,6 +31,7 @@ public class TCPReadHandler extends ChannelInboundHandlerAdapter {
         this.imsClient = imsClient;
     }
 
+    // 断线的时候重连
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
@@ -47,6 +48,7 @@ public class TCPReadHandler extends ChannelInboundHandlerAdapter {
 
 
 
+    // 报错的时候重连
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
@@ -61,6 +63,7 @@ public class TCPReadHandler extends ChannelInboundHandlerAdapter {
         imsClient.resetConnect(false);
     }
 
+    //接收到消息的时候 处理
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         MessageProtobuf.Msg message = (MessageProtobuf.Msg) msg;

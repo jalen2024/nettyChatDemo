@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
  */
 public class ExecutorServiceFactory {
 
+    // 分2个线程池处理
     private ExecutorService bossPool;// 管理线程组，负责重连
     private ExecutorService workPool;// 工作线程组，负责心跳
 

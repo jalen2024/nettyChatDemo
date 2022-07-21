@@ -22,6 +22,7 @@ import io.netty.util.internal.StringUtil;
  */
 public class MsgTimeoutTimerManager {
 
+    // 通过消息id来关联
     private Map<String, MsgTimeoutTimer> mMsgTimeoutMap = new ConcurrentHashMap<>();
     private IMSClientInterface imsClient;// ims客户端
 

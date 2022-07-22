@@ -20,7 +20,6 @@ public final class Message {
 
     /**
      * <pre>
-     *ҵ�񷽷�messageid  ÿ��ҵ�񷽷�һ��messageid
      * </pre>
      *
      * <code>string messageid = 1;</code>

@@ -1,0 +1,35 @@
+syntax = "proto3";
+option java_package="com.freddy.im.protobuf";
+option java_outer_classname = "Message";
+message NetMessage {    
+     string messageid = 1;
+     
+     string messageseqid = 2;
+     
+     string gamemoduleid = 3;
+     
+     string errorcode = 4;
+     
+     string messagetype = 5;
+     
+     string sendtime = 6;
+     
+     string frommoduleid = 7;
+     
+     string tomoduleid = 8;
+     
+     string playerid = 9;
+     
+     string clientip =10;
+     
+     string accountid =11;
+     
+     string secretkey =12;
+     
+     string token =13;
+     
+     string body = 14;
+    
+     
+}
+ 

@@ -42,4 +42,15 @@ public class BaseMessage {
 
         return StringUtil.equals(this.msgQid, ((BaseMessage) obj).msgQid);
     }
+
+    @Override
+    public String toString() {
+        return "BaseMessage{" +
+                "msgId='" + msgId + '\'' +
+                ", msgQid='" + msgQid + '\'' +
+                ", gmId=" + gmId +
+                ", msgType=" + msgType +
+                ", sendTime='" + sendTime + '\'' +
+                '}';
+    }
 }

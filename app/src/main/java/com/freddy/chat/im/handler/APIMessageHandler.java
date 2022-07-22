@@ -18,13 +18,13 @@ import com.freddy.chat.event.Events;
  * <p>@date:            2019/04/10 03:43</p>
  * <p>@email:           chenshichao@outlook.com</p>
  */
-public class SingleChatMessageHandler extends AbstractMessageHandler {
+public class APIMessageHandler extends AbstractMessageHandler {
 
-    private static final String TAG = SingleChatMessageHandler.class.getSimpleName();
+    private static final String TAG = APIMessageHandler.class.getSimpleName();
 
     @Override
     protected void action(AppMessage message) {
-        Log.d(TAG, "收到单聊消息，message=" + message);
+        Log.d(TAG, "收到API消息，message=" + message.toString());
 
         SingleMessage msg = new SingleMessage();
 //        msg.setMsgId(message.getHead().getMsgId());
@@ -37,6 +37,6 @@ public class SingleChatMessageHandler extends AbstractMessageHandler {
 //        msg.setContent(message.getBody());
 
 
-        CEventCenter.dispatchEvent(Events.API_MESSAGE, 0, 0, msg);
+        CEventCenter.dispatchEvent(Events.API_MESSAGE, 0, 0, message);
     }
 }

@@ -3,6 +3,7 @@ package com.freddy.chat.im.handler;
 import android.util.SparseArray;
 
 import com.freddy.chat.im.MessageType;
+import com.freddy.im.bean.MessageIdType;
 
 /**
  * <p>@ProjectName:     NettyChat</p>
@@ -25,11 +26,11 @@ public class MessageHandlerFactory {
 
     static {
         /** 单聊消息处理handler */
-        HANDLERS.put(MessageType.SINGLE_CHAT.getMsgType(), new SingleChatMessageHandler());
-        /** 群聊消息处理handler */
-        HANDLERS.put(MessageType.GROUP_CHAT.getMsgType(), new GroupChatMessageHandler());
-        /** 服务端返回的消息发送状态报告处理handler */
-        HANDLERS.put(MessageType.SERVER_MSG_SENT_STATUS_REPORT.getMsgType(), new ServerReportMessageHandler());
+        HANDLERS.put(MessageIdType.API_MSG, new APIMessageHandler());
+//        /** 群聊消息处理handler */
+//        HANDLERS.put(MessageType.GROUP_CHAT.getMsgType(), new GroupChatMessageHandler());
+//        /** 服务端返回的消息发送状态报告处理handler */
+//        HANDLERS.put(MessageType.SERVER_MSG_SENT_STATUS_REPORT.getMsgType(), new ServerReportMessageHandler());
     }
 
     /**

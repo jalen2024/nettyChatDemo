@@ -5,9 +5,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import com.alibaba.fastjson.JSONObject;
+import com.freddy.chat.BuildConfig;
 import com.freddy.chat.NettyChatApp;
+import com.freddy.im.bean.MessageIdType;
+import com.freddy.im.bean.MessageTypes;
 import com.freddy.im.listener.OnEventListener;
-import com.freddy.im.protobuf.MessageProtobuf;
+import com.network.message.web.Message;
 
 import java.util.UUID;
 
@@ -38,7 +41,7 @@ public class IMSEventListener implements OnEventListener {
      * @param msg
      */
     @Override
-    public void dispatchMsg(MessageProtobuf.Msg msg) {
+    public void dispatchMsg(Message.NetMessage msg) {
         MessageProcessor.getInstance().receiveMsg(MessageBuilder.getMessageByProtobuf(msg));
     }
 
@@ -100,19 +103,13 @@ public class IMSEventListener implements OnEventListener {
      * @return
      */
     @Override
-    public MessageProtobuf.Msg getHandshakeMsg() {
-        MessageProtobuf.Msg.Builder builder = MessageProtobuf.Msg.newBuilder();
-        MessageProtobuf.Head.Builder headBuilder = MessageProtobuf.Head.newBuilder();
-        headBuilder.setMsgId(UUID.randomUUID().toString());
-        headBuilder.setMsgType(MessageType.HANDSHAKE.getMsgType());
-        headBuilder.setFromId(userId);
-        headBuilder.setTimestamp(System.currentTimeMillis());
-
-        JSONObject jsonObj = new JSONObject();
-        jsonObj.put("token", token);
-        headBuilder.setExtend(jsonObj.toString());
-        builder.setHead(headBuilder.build());
-
+    public Message.NetMessage getHandshakeMsg() {
+        Message.NetMessage.Builder builder = Message.NetMessage.newBuilder();
+        builder.setSendtime(System.currentTimeMillis() + "");
+        builder.setMessageid(MessageIdType.SHAKE_HAND + "");
+        builder.setMessageseqid(UUID.randomUUID().toString());
+        builder.setGamemoduleid(MessageTypes.BUS_BOX+"");
+        builder.setMessagetype("1");
         return builder.build();
     }
 
@@ -122,15 +119,13 @@ public class IMSEventListener implements OnEventListener {
      * @return
      */
     @Override
-    public MessageProtobuf.Msg getHeartbeatMsg() {
-        MessageProtobuf.Msg.Builder builder = MessageProtobuf.Msg.newBuilder();
-        MessageProtobuf.Head.Builder headBuilder = MessageProtobuf.Head.newBuilder();
-        headBuilder.setMsgId(UUID.randomUUID().toString());
-        headBuilder.setMsgType(MessageType.HEARTBEAT.getMsgType());
-        headBuilder.setFromId(userId);
-        headBuilder.setTimestamp(System.currentTimeMillis());
-        builder.setHead(headBuilder.build());
-
+    public Message.NetMessage getHeartbeatMsg() {
+        Message.NetMessage.Builder builder = Message.NetMessage.newBuilder();
+        builder.setSendtime(System.currentTimeMillis() + "");
+        builder.setMessageid(MessageIdType.HEART_BEAT + "");
+        builder.setMessageseqid(UUID.randomUUID().toString());
+        builder.setGamemoduleid(MessageTypes.BUS_BOX+"");
+        builder.setMessagetype("1");
         return builder.build();
     }
 

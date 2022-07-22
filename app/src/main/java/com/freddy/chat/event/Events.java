@@ -6,6 +6,6 @@ package com.freddy.chat.event;
  */
 public class Events {
 
-    public static final String CHAT_SINGLE_MESSAGE = "chat_single_message";
+    public static final String API_MESSAGE = "api_message";
     public static final String CHAT_GROUP_MESSAGE = "chat_group_message";
 }

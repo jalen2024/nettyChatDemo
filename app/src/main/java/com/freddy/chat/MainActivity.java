@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements I_CEventListener 
 //    String hosts = "[{\"host\":\"192.168.0.116\", \"port\":8866}]";
 
     private static final String[] EVENTS = {
-            Events.CHAT_SINGLE_MESSAGE
+            Events.API_MESSAGE
     };
 
     @Override
@@ -49,14 +49,14 @@ public class MainActivity extends AppCompatActivity implements I_CEventListener 
 
     public void sendMsg(View view) {
         SingleMessage message = new SingleMessage();
-        message.setMsgId(UUID.randomUUID().toString());
-        message.setMsgType(MessageType.SINGLE_CHAT.getMsgType());
-        message.setMsgContentType(MessageType.MessageContentType.TEXT.getMsgContentType());
-        message.setFromId(userId);
-        message.setToId("001");
-//        message.setToId("102");
-        message.setTimestamp(System.currentTimeMillis());
-        message.setContent(mEditText.getText().toString());
+//        message.setMsgId(UUID.randomUUID().toString());
+//        message.setMsgType(MessageType.SINGLE_CHAT.getMsgType());
+//        message.setMsgContentType(MessageType.MessageContentType.TEXT.getMsgContentType());
+//        message.setFromId(userId);
+//        message.setToId("001");
+////        message.setToId("102");
+//        message.setTimestamp(System.currentTimeMillis());
+//        message.setContent(mEditText.getText().toString());
 
         MessageProcessor.getInstance().sendMsg(message);
 
@@ -71,13 +71,13 @@ public class MainActivity extends AppCompatActivity implements I_CEventListener 
     @Override
     public void onCEvent(String topic, int msgCode, int resultCode, Object obj) {
         switch (topic) {
-            case Events.CHAT_SINGLE_MESSAGE: {
+            case Events.API_MESSAGE: {
                 final SingleMessage message = (SingleMessage) obj;
                 CThreadPoolExecutor.runOnMainThread(new Runnable() {
 
                     @Override
                     public void run() {
-                        mTextView.setText(message.getContent());
+//                        mTextView.setText(message.getContent());
                     }
                 });
                 break;

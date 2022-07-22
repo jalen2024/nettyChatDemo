@@ -1,7 +1,7 @@
 package com.freddy.im;
 
 import com.freddy.im.netty.NettyTcpClient;
-import com.freddy.im.protobuf.MessageProtobuf;
+import com.network.message.web.Message;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -64,7 +64,7 @@ public class HeartbeatHandler extends ChannelInboundHandlerAdapter {
         @Override
         public void run() {
             if (ctx.channel().isActive()) {
-                MessageProtobuf.Msg heartbeatMsg = imsClient.getHeartbeatMsg();
+                Message.NetMessage heartbeatMsg = imsClient.getHeartbeatMsg();
                 if (heartbeatMsg == null) {
                     return;
                 }

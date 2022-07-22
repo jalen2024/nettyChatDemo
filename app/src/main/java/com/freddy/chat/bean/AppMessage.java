@@ -11,32 +11,12 @@ package com.freddy.chat.bean;
  * <p>@date:            2019/04/10 00:01</p>
  * <p>@email:           chenshichao@outlook.com</p>
  */
-public class AppMessage {
+public class AppMessage extends BaseMessage {
 
-    private Head head;  // 消息头
-    private String body;// 消息体
+    public String playId;
+    public String body;
 
-    public Head getHead() {
-        return head;
-    }
+    public MessageBody messageBody;
 
-    public void setHead(Head head) {
-        this.head = head;
-    }
 
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    @Override
-    public String toString() {
-        return "AppMessage{" +
-                "head=" + head +
-                ", body='" + body + '\'' +
-                '}';
-    }
 }

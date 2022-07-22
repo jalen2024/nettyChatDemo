@@ -2,8 +2,9 @@ package com.freddy.im.netty;
 
 import com.alibaba.fastjson.JSONObject;
 import com.freddy.im.IMSConfig;
-import com.freddy.im.interf.IMSClientInterface;
-import com.freddy.im.protobuf.MessageProtobuf;
+import com.freddy.im.bean.MessageIdType;
+import com.freddy.im.bean.MessageTypes;
+import com.network.message.web.Message;
 
 import java.util.UUID;
 
@@ -47,7 +48,6 @@ public class TCPReadHandler extends ChannelInboundHandlerAdapter {
     }
 
 
-
     // 报错的时候重连
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
@@ -66,25 +66,26 @@ public class TCPReadHandler extends ChannelInboundHandlerAdapter {
     //接收到消息的时候 处理
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        MessageProtobuf.Msg message = (MessageProtobuf.Msg) msg;
-        if (message == null || message.getHead() == null) {
+        Message.NetMessage message = (Message.NetMessage) msg;
+        if (message == null) {
             return;
         }
 
-        int msgType = message.getHead().getMsgType();
+        int msgType = Integer.parseInt(message.getMessageid());
         if (msgType == imsClient.getServerSentReportMsgType()) {
-            int statusReport = message.getHead().getStatusReport();
-            System.out.println(String.format("服务端状态报告：「%d」, 1代表成功，0代表失败", statusReport));
-            if (statusReport == IMSConfig.DEFAULT_REPORT_SERVER_SEND_MSG_SUCCESSFUL) {
-                System.out.println("收到服务端消息发送状态报告，message=" + message + "，从超时管理器移除");
-                imsClient.getMsgTimeoutTimerManager().remove(message.getHead().getMsgId());
-            }
+            // 因为后台没有 返回消息状态 所以不做更多判断
+//            int statusReport = message.getHead().getStatusReport();
+//            System.out.println(String.format("服务端状态报告：「%d」, 1代表成功，0代表失败", statusReport));
+//            if (statusReport == IMSConfig.DEFAULT_REPORT_SERVER_SEND_MSG_SUCCESSFUL) {
+            System.out.println("收到服务端消息发送状态报告，message=" + message + "，从超时管理器移除");
+            imsClient.getMsgTimeoutTimerManager().remove(message.getMessageseqid());
+//            }
         } else {
             // 其它消息
             // 收到消息后，立马给服务端回一条消息接收状态报告
             System.out.println("收到消息，message=" + message);
-            MessageProtobuf.Msg receivedReportMsg = buildReceivedReportMsg(message.getHead().getMsgId());
-            if(receivedReportMsg != null) {
+            Message.NetMessage receivedReportMsg = buildReceivedReportMsg(message.getMessageseqid());
+            if (receivedReportMsg != null) {
                 imsClient.sendMsg(receivedReportMsg);
             }
         }
@@ -95,24 +96,21 @@ public class TCPReadHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * 构建客户端消息接收状态报告
+     * TODO 需要新增用户信息进来
+     *
      * @param msgId
      * @return
      */
-    private MessageProtobuf.Msg buildReceivedReportMsg(String msgId) {
+    private Message.NetMessage buildReceivedReportMsg(String msgId) {
         if (StringUtil.isNullOrEmpty(msgId)) {
             return null;
         }
-
-        MessageProtobuf.Msg.Builder builder = MessageProtobuf.Msg.newBuilder();
-        MessageProtobuf.Head.Builder headBuilder = MessageProtobuf.Head.newBuilder();
-        headBuilder.setMsgId(UUID.randomUUID().toString());
-        headBuilder.setMsgType(imsClient.getClientReceivedReportMsgType());
-        headBuilder.setTimestamp(System.currentTimeMillis());
-        JSONObject jsonObj = new JSONObject();
-        jsonObj.put("msgId", msgId);
-        headBuilder.setExtend(jsonObj.toString());
-        builder.setHead(headBuilder.build());
-
+        Message.NetMessage.Builder builder = Message.NetMessage.newBuilder();
+        builder.setMessageid(MessageIdType.HEART_BEAT + "");
+        builder.setMessageseqid(UUID.randomUUID().toString());
+        builder.setGamemoduleid(MessageTypes.BUS_BOX + "");
+        builder.setMessagetype("1");// 客户端发给服务端的 固定为1
+        builder.setSendtime(System.currentTimeMillis() + "");
         return builder.build();
     }
 }

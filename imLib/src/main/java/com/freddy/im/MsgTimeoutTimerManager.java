@@ -1,7 +1,7 @@
 package com.freddy.im;
 
 import com.freddy.im.interf.IMSClientInterface;
-import com.freddy.im.protobuf.MessageProtobuf;
+import com.network.message.web.Message;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -22,7 +22,7 @@ import io.netty.util.internal.StringUtil;
  */
 public class MsgTimeoutTimerManager {
 
-    // 通过消息id来关联
+    // 通过消息 msgqid来关联
     private Map<String, MsgTimeoutTimer> mMsgTimeoutMap = new ConcurrentHashMap<>();
     private IMSClientInterface imsClient;// ims客户端
 
@@ -35,33 +35,34 @@ public class MsgTimeoutTimerManager {
      *
      * @param msg
      */
-    public void add(MessageProtobuf.Msg msg) {
-        if (msg == null || msg.getHead() == null) {
+    public void add(Message.NetMessage msg) {
+        if (msg == null || StringUtil.isNullOrEmpty(msg.getBody())) {
             return;
         }
 
         int handshakeMsgType = -1;
         int heartbeatMsgType = -1;
         int clientReceivedReportMsgType = imsClient.getClientReceivedReportMsgType();
-        MessageProtobuf.Msg handshakeMsg = imsClient.getHandshakeMsg();
-        if (handshakeMsg != null && handshakeMsg.getHead() != null) {
-            handshakeMsgType = handshakeMsg.getHead().getMsgType();
+        Message.NetMessage handshakeMsg = imsClient.getHandshakeMsg();
+        if (handshakeMsg != null) {
+            handshakeMsgType = Integer.parseInt(handshakeMsg.getMessageid());
         }
-        MessageProtobuf.Msg heartbeatMsg = imsClient.getHeartbeatMsg();
-        if (heartbeatMsg != null && heartbeatMsg.getHead() != null) {
-            heartbeatMsgType = heartbeatMsg.getHead().getMsgType();
+        Message.NetMessage heartbeatMsg = imsClient.getHeartbeatMsg();
+        if (heartbeatMsg != null ) {
+            heartbeatMsgType = Integer.parseInt(heartbeatMsg.getMessageid());
         }
 
-        int msgType = msg.getHead().getMsgType();
+        int msgType = Integer.parseInt(msg.getMessageid());
         // 握手消息、心跳消息、客户端返回的状态报告消息，不用重发。
         if (msgType == handshakeMsgType || msgType == heartbeatMsgType || msgType == clientReceivedReportMsgType) {
             return;
         }
 
-        String msgId = msg.getHead().getMsgId();
-        if (!mMsgTimeoutMap.containsKey(msgId)) {
+        // 通过msgQid 来做唯一区分处理
+        String msgQid = msg.getMessageseqid();
+        if (!mMsgTimeoutMap.containsKey(msgQid)) {
             MsgTimeoutTimer timer = new MsgTimeoutTimer(imsClient, msg);
-            mMsgTimeoutMap.put(msgId, timer);
+            mMsgTimeoutMap.put(msgQid, timer);
         }
 
         System.out.println("添加消息超发送超时管理器，message=" + msg + "\t当前管理器消息数：" + mMsgTimeoutMap.size());
@@ -78,7 +79,7 @@ public class MsgTimeoutTimerManager {
         }
 
         MsgTimeoutTimer timer = mMsgTimeoutMap.remove(msgId);
-        MessageProtobuf.Msg msg = null;
+        Message.NetMessage msg = null;
         if (timer != null) {
             msg = timer.getMsg();
             timer.cancel();

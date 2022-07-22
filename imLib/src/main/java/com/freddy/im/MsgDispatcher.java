@@ -1,7 +1,7 @@
 package com.freddy.im;
 
 import com.freddy.im.listener.OnEventListener;
-import com.freddy.im.protobuf.MessageProtobuf;
+import com.network.message.web.Message;
 
 /**
  * <p>@ProjectName:     NettyChat</p>
@@ -30,7 +30,7 @@ public class MsgDispatcher {
      * 接收消息，并通过OnEventListener转发消息到应用层
      * @param msg
      */
-    public void receivedMsg(MessageProtobuf.Msg msg) {
+    public void receivedMsg(Message.NetMessage msg) {
         if(mOnEventListener == null) {
             return;
         }

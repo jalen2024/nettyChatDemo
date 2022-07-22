@@ -1,6 +1,7 @@
 package com.freddy.chat.bean;
 
 import com.freddy.chat.utils.StringUtil;
+import com.freddy.im.bean.MessageTypes;
 
 /**
  * <p>@ProjectName:     NettyChat</p>
@@ -15,49 +16,21 @@ import com.freddy.chat.utils.StringUtil;
  */
 public class ContentMessage extends BaseMessage {
 
-    protected boolean isRead;
-    protected boolean isPlaying;
-    protected boolean isLoading;
+//    protected boolean isRead;
+//    protected boolean isPlaying;
+//    protected boolean isLoading;
 
     public ContentMessage() {
     }
 
-    public ContentMessage(String msgId, int msgType, int msgContentType, String fromId, String toId,
-                          long timestamp, int statusReport, String extend, String content) {
+    public ContentMessage(String msgId, String msgQid, String sendTime) {
         this.msgId = msgId;
-        this.msgType = msgType;
-        this.msgContentType = msgContentType;
-        this.fromId = fromId;
-        this.toId = toId;
-        this.timestamp = timestamp;
-        this.statusReport = statusReport;
-        this.extend = extend;
-        this.content = content;
+        this.msgQid = msgQid;
+        this.sendTime = sendTime;
+        this.gmId = MessageTypes.BUS_BOX;
+        this.msgType = 1;
     }
 
-    public boolean isRead() {
-        return isRead;
-    }
-
-    public void setRead(boolean read) {
-        isRead = read;
-    }
-
-    public boolean isPlaying() {
-        return isPlaying;
-    }
-
-    public void setPlaying(boolean playing) {
-        isPlaying = playing;
-    }
-
-    public boolean isLoading() {
-        return isLoading;
-    }
-
-    public void setLoading(boolean loading) {
-        isLoading = loading;
-    }
 
     @Override
     public boolean equals(Object obj) {
@@ -65,14 +38,14 @@ public class ContentMessage extends BaseMessage {
             return false;
         }
 
-        return StringUtil.equals(this.msgId, ((ContentMessage) obj).getMsgId());
+        return StringUtil.equals(this.msgQid, ((ContentMessage) obj).msgQid);
     }
 
     @Override
     public int hashCode() {
         try {
-            return this.msgId.hashCode();
-        }catch (NullPointerException e) {
+            return this.msgQid.hashCode();
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
 

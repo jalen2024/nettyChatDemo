@@ -1,6 +1,8 @@
 package com.freddy.im.netty;
 
 
+import android.text.TextUtils;
+
 import com.freddy.im.ExecutorServiceFactory;
 import com.freddy.im.HeartbeatHandler;
 import com.freddy.im.IMSConfig;
@@ -10,7 +12,7 @@ import com.freddy.im.bean.HostBean;
 import com.freddy.im.interf.IMSClientInterface;
 import com.freddy.im.listener.IMSConnectStatusCallback;
 import com.freddy.im.listener.OnEventListener;
-import com.freddy.im.protobuf.MessageProtobuf;
+import com.network.message.web.Message;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -220,7 +222,7 @@ public class NettyTcpClient implements IMSClientInterface {
      * @param msg
      */
     @Override
-    public void sendMsg(MessageProtobuf.Msg msg) {
+    public void sendMsg(Message.NetMessage msg) {
         this.sendMsg(msg, true);
     }
 
@@ -232,13 +234,13 @@ public class NettyTcpClient implements IMSClientInterface {
      * @param isJoinTimeoutManager 是否加入发送超时管理器
      */
     @Override
-    public void sendMsg(MessageProtobuf.Msg msg, boolean isJoinTimeoutManager) {
-        if (msg == null || msg.getHead() == null) {
+    public void sendMsg(Message.NetMessage msg, boolean isJoinTimeoutManager) {
+        if (msg == null || StringUtil.isNullOrEmpty( msg.getBody() )) {
             System.out.println("发送消息失败，消息为空\tmessage=" + msg);
             return;
         }
 
-        if (!StringUtil.isNullOrEmpty(msg.getHead().getMsgId())) {
+        if (!StringUtil.isNullOrEmpty(msg.getMessageseqid())) {
             if (isJoinTimeoutManager) {
                 msgTimeoutTimerManager.add(msg);
             }
@@ -334,7 +336,7 @@ public class NettyTcpClient implements IMSClientInterface {
      * @return
      */
     @Override
-    public MessageProtobuf.Msg getHandshakeMsg() {
+    public Message.NetMessage getHandshakeMsg() {
         if (mOnEventListener != null) {
             return mOnEventListener.getHandshakeMsg();
         }
@@ -348,7 +350,7 @@ public class NettyTcpClient implements IMSClientInterface {
      * @return
      */
     @Override
-    public MessageProtobuf.Msg getHeartbeatMsg() {
+    public Message.NetMessage getHeartbeatMsg() {
         if (mOnEventListener != null) {
             return mOnEventListener.getHeartbeatMsg();
         }
@@ -489,7 +491,7 @@ public class NettyTcpClient implements IMSClientInterface {
                     mIMSConnectStatusCallback.onConnected();
                 }
                 // 连接成功，发送握手消息
-                MessageProtobuf.Msg handshakeMsg = getHandshakeMsg();
+                Message.NetMessage handshakeMsg = getHandshakeMsg();
                 if (handshakeMsg != null) {
                     System.out.println("发送握手消息，message=" + handshakeMsg);
                     sendMsg(handshakeMsg, false);

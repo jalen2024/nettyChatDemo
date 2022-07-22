@@ -2,9 +2,9 @@ package com.freddy.im;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.freddy.im.protobuf.MessageProtobuf;
+import com.freddy.im.bean.MessageIdType;
+import com.network.message.web.Message;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -62,7 +62,7 @@ public class NettyServerDemo {
                     pipeline.addLast("frameEncoder", new LengthFieldPrepender(2));
                     pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(65535,
                             0, 2, 0, 2));
-                    pipeline.addLast(new ProtobufDecoder(MessageProtobuf.Msg.getDefaultInstance()));
+                    pipeline.addLast(new ProtobufDecoder(Message.NetMessage.getDefaultInstance()));
                     pipeline.addLast(new ProtobufEncoder());
                     //处理类
                     pipeline.addLast(new ServerHandler());
@@ -126,53 +126,54 @@ class ServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        MessageProtobuf.Msg message = (MessageProtobuf.Msg) msg;
+        Message.NetMessage message = (Message.NetMessage) msg;
         System.out.println("收到来自客户端的消息：" + message);
-        int msgType = message.getHead().getMsgType();
+        int msgType = Integer.parseInt( message.getMessageid());
         switch (msgType) {
             // 握手消息
-            case 1001: {
-                String fromId = message.getHead().getFromId();
-                JSONObject jsonObj = JSON.parseObject(message.getHead().getExtend());
-                String token = jsonObj.getString("token");
-                JSONObject resp = new JSONObject();
-                if (token.equals("token_" + fromId)) {
-                    resp.put("status", 1);
-                    // 握手成功后，保存用户通道
-                    ChannelContainer.getInstance().saveChannel(new NettyChannel(fromId, ctx.channel()));
-                } else {
-                    resp.put("status", -1);
-                    ChannelContainer.getInstance().removeChannelIfConnectNoActive(ctx.channel());
-                }
-
-                message = message.toBuilder().setHead(message.getHead().toBuilder().setExtend(resp.toString()).build()).build();
-                ChannelContainer.getInstance().getActiveChannelByUserId(fromId).getChannel().writeAndFlush(message);
+            case MessageIdType
+                    .SHAKE_HAND: {
+//                String fromId = message.getHead().getFromId();
+//                JSONObject jsonObj = JSON.parseObject(message.getHead().getExtend());
+//                String token = jsonObj.getString("token");
+//                JSONObject resp = new JSONObject();
+//                if (token.equals("token_" + fromId)) {
+//                    resp.put("status", 1);
+//                    // 握手成功后，保存用户通道
+//                    ChannelContainer.getInstance().saveChannel(new NettyChannel(fromId, ctx.channel()));
+//                } else {
+//                    resp.put("status", -1);
+//                    ChannelContainer.getInstance().removeChannelIfConnectNoActive(ctx.channel());
+//                }
+//
+//                message = message.toBuilder().setHead(message.getHead().toBuilder().setExtend(resp.toString()).build()).build();
+//                ChannelContainer.getInstance().getActiveChannelByUserId(fromId).getChannel().writeAndFlush(message);
                 break;
             }
 
             // 心跳消息
-            case 1002: {
+            case MessageIdType.HEART_BEAT: {
                 // 收到心跳消息，原样返回
-                String fromId = message.getHead().getFromId();
-                ChannelContainer.getInstance().getActiveChannelByUserId(fromId).getChannel().writeAndFlush(message);
+//                String fromId = message.getHead().getFromId();
+//                ChannelContainer.getInstance().getActiveChannelByUserId(fromId).getChannel().writeAndFlush(message);
                 break;
             }
 
-            case 2001: {
+            case MessageIdType.API_MSG: {
                 // 收到2001或3001消息，返回给客户端消息发送状态报告
-                String fromId = message.getHead().getFromId();
-                MessageProtobuf.Msg.Builder sentReportMsgBuilder = MessageProtobuf.Msg.newBuilder();
-                MessageProtobuf.Head.Builder sentReportHeadBuilder = MessageProtobuf.Head.newBuilder();
-                sentReportHeadBuilder.setMsgId(message.getHead().getMsgId());
-                sentReportHeadBuilder.setMsgType(1010);
-                sentReportHeadBuilder.setTimestamp(System.currentTimeMillis());
-                sentReportHeadBuilder.setStatusReport(1);
-                sentReportMsgBuilder.setHead(sentReportHeadBuilder.build());
-                ChannelContainer.getInstance().getActiveChannelByUserId(fromId).getChannel().writeAndFlush(sentReportMsgBuilder.build());
-
-                // 同时转发消息到接收方
-                String toId = message.getHead().getToId();
-                ChannelContainer.getInstance().getActiveChannelByUserId(toId).getChannel().writeAndFlush(message);
+//                String fromId = message.getHead().getFromId();
+//                Message.NetMessage.Builder sentReportMsgBuilder = Message.NetMessage.newBuilder();
+//                MessageProtobuf.Head.Builder sentReportHeadBuilder = MessageProtobuf.Head.newBuilder();
+//                sentReportHeadBuilder.setMsgId(message.getHead().getMsgId());
+//                sentReportHeadBuilder.setMsgType(1010);
+//                sentReportHeadBuilder.setTimestamp(System.currentTimeMillis());
+//                sentReportHeadBuilder.setStatusReport(1);
+//                sentReportMsgBuilder.setHead(sentReportHeadBuilder.build());
+//                ChannelContainer.getInstance().getActiveChannelByUserId(fromId).getChannel().writeAndFlush(sentReportMsgBuilder.build());
+//
+//                // 同时转发消息到接收方
+//                String toId = message.getHead().getToId();
+//                ChannelContainer.getInstance().getActiveChannelByUserId(toId).getChannel().writeAndFlush(message);
                 break;
             }
 

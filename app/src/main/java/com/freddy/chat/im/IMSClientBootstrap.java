@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.freddy.im.IMSClientFactory;
 import com.freddy.im.bean.HostBean;
 import com.freddy.im.interf.IMSClientInterface;
-import com.freddy.im.protobuf.MessageProtobuf;
+import com.network.message.web.Message;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -78,7 +78,7 @@ public class IMSClientBootstrap {
      *
      * @param msg
      */
-    public void sendMessage(MessageProtobuf.Msg msg) {
+    public void sendMessage(Message.NetMessage msg) {
         if (isActive) {
             imsClient.sendMsg(msg);
         }

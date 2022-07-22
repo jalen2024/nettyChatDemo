@@ -1,6 +1,6 @@
 package com.freddy.im.listener;
 
-import com.freddy.im.protobuf.MessageProtobuf;
+import com.network.message.web.Message;
 
 /**
  * <p>@ProjectName:     NettyChat</p>
@@ -20,7 +20,7 @@ public interface OnEventListener {
      *
      * @param msg
      */
-    void dispatchMsg(MessageProtobuf.Msg msg);
+    void dispatchMsg(Message.NetMessage msg);
 
     /**
      * 从应用层获取网络是否可用
@@ -62,14 +62,14 @@ public interface OnEventListener {
      *
      * @return
      */
-    MessageProtobuf.Msg getHandshakeMsg();
+    Message.NetMessage getHandshakeMsg();
 
     /**
      * 获取由应用层构造的心跳消息
      *
      * @return
      */
-    MessageProtobuf.Msg getHeartbeatMsg();
+    Message.NetMessage getHeartbeatMsg();
 
     /**
      * 获取应用层消息发送状态报告消息类型

@@ -1,7 +1,7 @@
 package com.freddy.im;
 
 import com.freddy.im.netty.NettyTcpClient;
-import com.freddy.im.protobuf.MessageProtobuf;
+import com.network.message.web.Message;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -27,18 +27,18 @@ public class HeartbeatRespHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        MessageProtobuf.Msg heartbeatRespMsg = (MessageProtobuf.Msg) msg;
-        if (heartbeatRespMsg == null || heartbeatRespMsg.getHead() == null) {
+        Message.NetMessage heartbeatRespMsg = (Message.NetMessage) msg;
+        if (heartbeatRespMsg == null ) {
             return;
         }
 
-        MessageProtobuf.Msg heartbeatMsg = imsClient.getHeartbeatMsg();
-        if (heartbeatMsg == null || heartbeatMsg.getHead() == null) {
+        Message.NetMessage heartbeatMsg = imsClient.getHeartbeatMsg();
+        if (heartbeatMsg == null ) {
             return;
         }
 
-        int heartbeatMsgType = heartbeatMsg.getHead().getMsgType();
-        if (heartbeatMsgType == heartbeatRespMsg.getHead().getMsgType()) {
+        int msgId = Integer.parseInt(heartbeatMsg.getMessageid());
+        if (msgId == Integer.parseInt(heartbeatRespMsg.getMessageid())) {
             System.out.println("收到服务端心跳响应消息，message=" + heartbeatRespMsg);
         } else {
             // 消息透传

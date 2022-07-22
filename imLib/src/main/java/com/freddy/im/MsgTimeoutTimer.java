@@ -1,7 +1,9 @@
 package com.freddy.im;
 
+import android.text.TextUtils;
+
 import com.freddy.im.interf.IMSClientInterface;
-import com.freddy.im.protobuf.MessageProtobuf;
+import com.network.message.web.Message;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -20,11 +22,11 @@ import java.util.TimerTask;
 public class MsgTimeoutTimer extends Timer {
 
     private IMSClientInterface imsClient;// ims客户端
-    private MessageProtobuf.Msg msg;// 发送的消息
+    private Message.NetMessage msg;// 发送的消息
     private int currentResendCount;// 当前重发次数
     private MsgTimeoutTask task;// 消息发送超时任务
 
-    public MsgTimeoutTimer(IMSClientInterface imsClient, MessageProtobuf.Msg msg) {
+    public MsgTimeoutTimer(IMSClientInterface imsClient, Message.NetMessage msg) {
         this.imsClient = imsClient;
         this.msg = msg;
         task = new MsgTimeoutTask();
@@ -41,7 +43,7 @@ public class MsgTimeoutTimer extends Timer {
             if (imsClient.isClosed()) {
                 // 从消息发送超时管理器移除该消息
                 if (imsClient.getMsgTimeoutTimerManager() != null) {
-                    imsClient.getMsgTimeoutTimerManager().remove(msg.getHead().getMsgId());
+                    imsClient.getMsgTimeoutTimerManager().remove(msg.getMessageseqid());
                 }
 
                 return;
@@ -51,19 +53,33 @@ public class MsgTimeoutTimer extends Timer {
             if (currentResendCount > imsClient.getResendCount()) {
                 // 重发次数大于可重发次数，直接标识为发送失败，并通过消息转发器通知应用层
                 try {
-                    MessageProtobuf.Msg.Builder builder = MessageProtobuf.Msg.newBuilder();
-                    MessageProtobuf.Head.Builder headBuilder = MessageProtobuf.Head.newBuilder();
-                    headBuilder.setMsgId(msg.getHead().getMsgId());
-                    headBuilder.setMsgType(imsClient.getServerSentReportMsgType());
-                    headBuilder.setTimestamp(System.currentTimeMillis());
-                    headBuilder.setStatusReport(IMSConfig.DEFAULT_REPORT_SERVER_SEND_MSG_FAILURE);
-                    builder.setHead(headBuilder.build());
+                    Message.NetMessage.Builder builder = Message.NetMessage.newBuilder();
+
+                    if (!TextUtils.isEmpty(msg.getMessageid()))
+                        builder.setMessageid(msg.getMessageid());
+                    if (!TextUtils.isEmpty(msg.getMessageseqid()))
+                        builder.setMessageseqid(msg.getMessageseqid());
+
+                    if (!TextUtils.isEmpty(msg.getMessagetype()))
+                        builder.setMessagetype(msg.getMessagetype() + "");
+                    if (!TextUtils.isEmpty(msg.getGamemoduleid()))
+                        builder.setGamemoduleid(msg.getGamemoduleid() + "");
+                    if (!TextUtils.isEmpty(msg.getPlayerid()))
+                        builder.setPlayerid(msg.getPlayerid());
+
+                    builder.setSendtime(System.currentTimeMillis()+"");
+//                    MessageProtobuf.Head.Builder headBuilder = MessageProtobuf.Head.newBuilder();
+//                    headBuilder.setMsgId(msg.getHead().getMsgId());
+//                    headBuilder.setMsgType(imsClient.getServerSentReportMsgType());
+//                    headBuilder.setTimestamp(System.currentTimeMillis());
+//                    headBuilder.setStatusReport(IMSConfig.DEFAULT_REPORT_SERVER_SEND_MSG_FAILURE);
+//                    builder.setHead(headBuilder.build());
 
                     // 通知应用层消息发送失败
                     imsClient.getMsgDispatcher().receivedMsg(builder.build());
                 } finally {
                     // 从消息发送超时管理器移除该消息
-                    imsClient.getMsgTimeoutTimerManager().remove(msg.getHead().getMsgId());
+                    imsClient.getMsgTimeoutTimerManager().remove(msg.getMessageid());
                     // 执行到这里，认为连接已断开或不稳定，触发重连
                     imsClient.resetConnect();
                     currentResendCount = 0;
@@ -80,7 +96,7 @@ public class MsgTimeoutTimer extends Timer {
         imsClient.sendMsg(msg, false);
     }
 
-    public MessageProtobuf.Msg getMsg() {
+    public Message.NetMessage getMsg() {
         return msg;
     }
 

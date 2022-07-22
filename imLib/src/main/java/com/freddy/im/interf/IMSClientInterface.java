@@ -5,10 +5,9 @@ import com.freddy.im.MsgTimeoutTimerManager;
 import com.freddy.im.bean.HostBean;
 import com.freddy.im.listener.IMSConnectStatusCallback;
 import com.freddy.im.listener.OnEventListener;
-import com.freddy.im.protobuf.MessageProtobuf;
+import com.network.message.web.Message;
 
 import java.util.ArrayList;
-import java.util.Vector;
 
 /**
  * <p>@ProjectName:     NettyChat</p>
@@ -64,7 +63,7 @@ public interface IMSClientInterface {
      *
      * @param msg
      */
-    void sendMsg(MessageProtobuf.Msg msg);
+    void sendMsg(Message.NetMessage msg);
 
     /**
      * 发送消息
@@ -73,7 +72,7 @@ public interface IMSClientInterface {
      * @param msg
      * @param isJoinTimeoutManager 是否加入发送超时管理器
      */
-    void sendMsg(MessageProtobuf.Msg msg, boolean isJoinTimeoutManager);
+    void sendMsg(Message.NetMessage msg, boolean isJoinTimeoutManager);
 
     /**
      * 获取重连间隔时长
@@ -115,14 +114,14 @@ public interface IMSClientInterface {
      *
      * @return
      */
-    MessageProtobuf.Msg getHandshakeMsg();
+    Message.NetMessage getHandshakeMsg();
 
     /**
      * 获取由应用层构造的心跳消息
-     *
+     * 返回值需要 String 转 Int
      * @return
      */
-    MessageProtobuf.Msg getHeartbeatMsg();
+    Message.NetMessage getHeartbeatMsg();
 
     /**
      * 获取应用层消息发送状态报告消息类型

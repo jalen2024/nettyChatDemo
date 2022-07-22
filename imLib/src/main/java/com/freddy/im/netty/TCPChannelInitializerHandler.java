@@ -2,7 +2,7 @@ package com.freddy.im.netty;
 
 import com.freddy.im.HeartbeatRespHandler;
 import com.freddy.im.LoginAuthRespHandler;
-import com.freddy.im.protobuf.MessageProtobuf;
+import com.network.message.web.Message;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -42,7 +42,7 @@ public class TCPChannelInitializerHandler extends ChannelInitializer<Channel> {
 
         // 增加protobuf编解码支持
         pipeline.addLast(new ProtobufEncoder());
-        pipeline.addLast(new ProtobufDecoder(MessageProtobuf.Msg.getDefaultInstance()));
+        pipeline.addLast(new ProtobufDecoder(Message.NetMessage.getDefaultInstance()));
 
         // 握手认证消息响应处理handler   in
         pipeline.addLast(LoginAuthRespHandler.class.getSimpleName(), new LoginAuthRespHandler(imsClient));

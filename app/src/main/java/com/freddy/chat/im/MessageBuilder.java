@@ -3,9 +3,10 @@ package com.freddy.chat.im;
 import com.freddy.chat.bean.AppMessage;
 import com.freddy.chat.bean.BaseMessage;
 import com.freddy.chat.bean.ContentMessage;
-import com.freddy.chat.bean.Head;
+import com.freddy.chat.bean.MessageBody;
 import com.freddy.chat.utils.StringUtil;
-import com.freddy.im.protobuf.MessageProtobuf;
+import com.freddy.im.bean.MessageTypes;
+import com.network.message.web.Message;
 
 /**
  * <p>@ProjectName:     BoChat</p>
@@ -24,26 +25,16 @@ public class MessageBuilder {
      * 根据聊天消息，生成一条可以能够传输通讯的消息
      *
      * @param msgId
-     * @param type
-     * @param subType
-     * @param fromId
-     * @param toId
-     * @param extend
-     * @param content
      * @return
      */
-    public static AppMessage buildAppMessage(String msgId, int type, int subType, String fromId,
-                                             String toId, String extend, String content) {
+    public static AppMessage buildAppMessage(String msgId, String msgQid, String sendTime) {
         AppMessage message = new AppMessage();
-        Head head = new Head();
-        head.setMsgId(msgId);
-        head.setMsgType(type);
-        head.setMsgContentType(subType);
-        head.setFromId(fromId);
-        head.setToId(toId);
-        head.setExtend(extend);
-        message.setHead(head);
-        message.setBody(content);
+
+        message.msgId = msgId;
+        message.msgQid = msgQid;
+        message.sendTime = sendTime;
+        message.gmId = MessageTypes.BUS_BOX;
+        message.msgType = 1;
 
         return message;
     }
@@ -56,17 +47,11 @@ public class MessageBuilder {
      */
     public static AppMessage buildAppMessage(ContentMessage msg) {
         AppMessage message = new AppMessage();
-        Head head = new Head();
-        head.setMsgId(msg.getMsgId());
-        head.setMsgType(msg.getMsgType());
-        head.setMsgContentType(msg.getMsgContentType());
-        head.setFromId(msg.getFromId());
-        head.setToId(msg.getToId());
-        head.setTimestamp(msg.getTimestamp());
-        head.setExtend(msg.getExtend());
-        message.setHead(head);
-        message.setBody(msg.getContent());
-
+        message.msgId = msg.msgId;
+        message.msgQid = msg.msgQid;
+        message.sendTime = msg.sendTime;
+        message.gmId = msg.gmId;
+        message.msgType = msg.msgType;
         return message;
     }
 
@@ -78,16 +63,12 @@ public class MessageBuilder {
      */
     public static AppMessage buildAppMessage(BaseMessage msg) {
         AppMessage message = new AppMessage();
-        Head head = new Head();
-        head.setMsgId(msg.getMsgId());
-        head.setMsgType(msg.getMsgType());
-        head.setMsgContentType(msg.getMsgContentType());
-        head.setFromId(msg.getFromId());
-        head.setToId(msg.getToId());
-        head.setExtend(msg.getExtend());
-        head.setTimestamp(msg.getTimestamp());
-        message.setHead(head);
-        message.setBody(msg.getContent());
+
+        message.msgId = msg.msgId;
+        message.msgQid = msg.msgQid;
+        message.sendTime = msg.sendTime;
+        message.gmId = msg.gmId;
+        message.msgType = msg.msgType;
 
         return message;
     }
@@ -98,25 +79,18 @@ public class MessageBuilder {
      * @param message
      * @return
      */
-    public static MessageProtobuf.Msg.Builder getProtoBufMessageBuilderByAppMessage(AppMessage message) {
-        MessageProtobuf.Msg.Builder builder = MessageProtobuf.Msg.newBuilder();
-        MessageProtobuf.Head.Builder headBuilder = MessageProtobuf.Head.newBuilder();
-        headBuilder.setMsgType(message.getHead().getMsgType());
-        headBuilder.setStatusReport(message.getHead().getStatusReport());
-        headBuilder.setMsgContentType(message.getHead().getMsgContentType());
-        if (!StringUtil.isEmpty(message.getHead().getMsgId()))
-            headBuilder.setMsgId(message.getHead().getMsgId());
-        if (!StringUtil.isEmpty(message.getHead().getFromId()))
-            headBuilder.setFromId(message.getHead().getFromId());
-        if (!StringUtil.isEmpty(message.getHead().getToId()))
-            headBuilder.setToId(message.getHead().getToId());
-        if (message.getHead().getTimestamp() != 0)
-            headBuilder.setTimestamp(message.getHead().getTimestamp());
-        if (!StringUtil.isEmpty(message.getHead().getExtend()))
-            headBuilder.setExtend(message.getHead().getExtend());
-        if (!StringUtil.isEmpty(message.getBody()))
-            builder.setBody(message.getBody());
-        builder.setHead(headBuilder);
+    public static Message.NetMessage.Builder getProtoBufMessageBuilderByAppMessage(AppMessage message) {
+        Message.NetMessage.Builder builder = Message.NetMessage.newBuilder();
+        if (!StringUtil.isEmpty(message.msgId))
+            builder.setMessageid(message.msgId);
+        if (!StringUtil.isEmpty(message.msgQid))
+            builder.setMessageseqid(message.msgQid);
+        if (!StringUtil.isEmpty(message.msgType))
+            builder.setMessagetype(message.msgType + "");
+        if (!StringUtil.isEmpty(message.gmId))
+            builder.setGamemoduleid(message.gmId + "");
+        if (!StringUtil.isEmpty(message.playId))
+            builder.setPlayerid(message.playId);
         return builder;
     }
 
@@ -127,20 +101,19 @@ public class MessageBuilder {
      * @return
      */
     public static AppMessage getMessageByProtobuf(
-            MessageProtobuf.Msg protobufMessage) {
+            Message.NetMessage protobufMessage) {
         AppMessage message = new AppMessage();
-        Head head = new Head();
-        MessageProtobuf.Head protoHead = protobufMessage.getHead();
-        head.setMsgType(protoHead.getMsgType());
-        head.setStatusReport(protoHead.getStatusReport());
-        head.setMsgContentType(protoHead.getMsgContentType());
-        head.setMsgId(protoHead.getMsgId());
-        head.setFromId(protoHead.getFromId());
-        head.setToId(protoHead.getToId());
-        head.setTimestamp(protoHead.getTimestamp());
-        head.setExtend(protoHead.getExtend());
-        message.setHead(head);
-        message.setBody(protobufMessage.getBody());
+
+
+        message.msgId = protobufMessage.getMessageid();
+        message.msgQid = protobufMessage.getMessageseqid();
+        message.sendTime = protobufMessage.getSendtime();
+        if (StringUtil.isNotEmpty(protobufMessage.getGamemoduleid())) {
+            message.gmId = Integer.parseInt(protobufMessage.getGamemoduleid());
+        }
+        if (StringUtil.isNotEmpty(protobufMessage.getGamemoduleid())) {
+            message.msgType = Integer.parseInt(protobufMessage.getMessagetype());
+        }
         return message;
     }
 }

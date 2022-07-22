@@ -18,7 +18,7 @@ public class SingleMessage extends ContentMessage implements Cloneable {
     @Override
     public int hashCode() {
         try {
-            return this.msgId.hashCode();
+            return this.msgQid.hashCode();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -36,6 +36,6 @@ public class SingleMessage extends ContentMessage implements Cloneable {
             return false;
         }
 
-        return StringUtil.equals(this.msgId, ((SingleMessage) obj).getMsgId());
+        return StringUtil.equals(this.msgQid, ((SingleMessage) obj).msgQid);
     }
 }

@@ -42,9 +42,9 @@ public class MainActivity extends AppCompatActivity implements I_CEventListener 
         mEditText = findViewById(R.id.et_content);
         mTextView = findViewById(R.id.tv_msg);
 
-        IMSClientBootstrap.getInstance().init(userId, token, hosts, 1);
+//        IMSClientBootstrap.getInstance().init(userId, token, hosts, 1);
 
-        CEventCenter.registerEventListener(this, EVENTS);
+//        CEventCenter.registerEventListener(this, EVENTS);
     }
 
     public void sendMsg(View view) {

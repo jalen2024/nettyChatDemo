@@ -4,9 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.freddy.im.IMSClientFactory;
+import com.freddy.im.bean.HostBean;
 import com.freddy.im.interf.IMSClientInterface;
 import com.freddy.im.protobuf.MessageProtobuf;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -39,26 +41,25 @@ public class IMSClientBootstrap {
         String token = "token_" + userId;
         IMSClientBootstrap bootstrap = IMSClientBootstrap.getInstance();
         String hosts = "[{\"host\":\"127.0.0.103\", \"port\":8866}]";
-        bootstrap.init(userId, token, hosts, 0);
+//        bootstrap.init(userId, token, hosts, 0);
     }
 
     /**
      *
      * @param userId
      * @param token
-     * @param hosts
+     * @param serverUrlList
      * @param appStatus 0 在后台 1 在前台
      */
-    public synchronized void init(String userId, String token, String hosts, int appStatus) {
+    public synchronized void init(String userId, String token, ArrayList<HostBean> serverUrlList, int appStatus) {
         if (!isActive()) {
-            Vector<String> serverUrlList = convertHosts(hosts);
             if (serverUrlList == null || serverUrlList.size() == 0) {
                 System.out.println("init IMLibClientBootstrap error,ims hosts is null");
                 return;
             }
 
             isActive = true;
-            System.out.println("init IMLibClientBootstrap, servers=" + hosts);
+            System.out.println("init IMLibClientBootstrap, servers=" + serverUrlList.toString());
             if (null != imsClient) {
                 imsClient.close();
             }

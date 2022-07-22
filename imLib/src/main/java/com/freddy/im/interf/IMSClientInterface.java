@@ -2,10 +2,12 @@ package com.freddy.im.interf;
 
 import com.freddy.im.MsgDispatcher;
 import com.freddy.im.MsgTimeoutTimerManager;
+import com.freddy.im.bean.HostBean;
 import com.freddy.im.listener.IMSConnectStatusCallback;
 import com.freddy.im.listener.OnEventListener;
 import com.freddy.im.protobuf.MessageProtobuf;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -28,7 +30,7 @@ public interface IMSClientInterface {
      * @param listener      与应用层交互的listener
      * @param callback      ims连接状态回调
      */
-    void init(Vector<String> serverUrlList, OnEventListener listener, IMSConnectStatusCallback callback);
+    void init(ArrayList<HostBean> serverUrlList, OnEventListener listener, IMSConnectStatusCallback callback);
 
     /**
      * 重置连接，也就是重连

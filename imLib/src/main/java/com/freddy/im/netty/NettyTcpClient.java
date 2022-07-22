@@ -6,11 +6,13 @@ import com.freddy.im.HeartbeatHandler;
 import com.freddy.im.IMSConfig;
 import com.freddy.im.MsgDispatcher;
 import com.freddy.im.MsgTimeoutTimerManager;
+import com.freddy.im.bean.HostBean;
 import com.freddy.im.interf.IMSClientInterface;
 import com.freddy.im.listener.IMSConnectStatusCallback;
 import com.freddy.im.listener.OnEventListener;
 import com.freddy.im.protobuf.MessageProtobuf;
 
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +44,7 @@ public class NettyTcpClient implements IMSClientInterface {
     private Channel channel;
 
     private volatile boolean isClosed = false;// 标识ims是否已关闭
-    private Vector<String> serverUrlList;// ims服务器地址组
+    private ArrayList<HostBean> serverUrlList;// ims服务器地址组
     private OnEventListener mOnEventListener;// 与应用层交互的listener
     private IMSConnectStatusCallback mIMSConnectStatusCallback;// ims连接状态回调监听器
     private MsgDispatcher msgDispatcher;// 消息转发器
@@ -95,7 +97,7 @@ public class NettyTcpClient implements IMSClientInterface {
      * @param callback      ims连接状态回调
      */
     @Override
-    public void init(Vector<String> serverUrlList, OnEventListener listener, IMSConnectStatusCallback callback) {
+    public void init(ArrayList<HostBean> serverUrlList, OnEventListener listener, IMSConnectStatusCallback callback) {
         close();
         isClosed = false;
         this.serverUrlList = serverUrlList;
@@ -709,13 +711,12 @@ public class NettyTcpClient implements IMSClientInterface {
             }
 
             for (int i = 0; (!isClosed && i < serverUrlList.size()); i++) {
-                String serverUrl = serverUrlList.get(i);
+                HostBean hostBean = serverUrlList.get(i);
                 // 如果服务器地址无效，直接回调连接状态，不再进行连接
-                if (StringUtil.isNullOrEmpty(serverUrl)) {
+                if (hostBean==null||StringUtil.isNullOrEmpty(hostBean.host)) {
                     return IMSConfig.CONNECT_STATE_FAILURE;
                 }
 
-                String[] address = serverUrl.split(" ");
                 for (int j = 1; j <= IMSConfig.DEFAULT_RECONNECT_COUNT; j++) {
                     // 如果ims已关闭，或网络不可用，直接回调连接状态，不再进行连接
                     if (isClosed || !isNetworkAvailable()) {
@@ -726,11 +727,11 @@ public class NettyTcpClient implements IMSClientInterface {
                     if (connectStatus != IMSConfig.CONNECT_STATE_CONNECTING) {
                         onConnectStatusCallback(IMSConfig.CONNECT_STATE_CONNECTING);
                     }
-                    System.out.println(String.format("正在进行『%s』的第『%d』次连接，当前重连延时时长为『%dms』", serverUrl, j, j * getReconnectInterval()));
+                    System.out.println(String.format("正在进行『%s』的第『%d』次连接，当前重连延时时长为『%dms』", hostBean.toString(), j, j * getReconnectInterval()));
 
                     try {
-                        currentHost = address[0];// 获取host
-                        currentPort = Integer.parseInt(address[1]);// 获取port
+                        currentHost = hostBean.host;// 获取host
+                        currentPort = hostBean.port;// 获取port
                         toRealServer();// 连接服务器
 
                         // channel不为空，即认为连接已成功

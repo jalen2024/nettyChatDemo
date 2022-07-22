@@ -1,5 +1,5 @@
 syntax = "proto3";
-option java_package="com.freddy.im.protobuf";
+option java_package="com.network.message.web";
 option java_outer_classname = "Message";
 message NetMessage {    
      string messageid = 1;
@@ -26,8 +26,10 @@ message NetMessage {
      
      string secretkey =12;
      
+     //token
      string token =13;
-     
+
+     // json 数据
      string body = 14;
     
      
